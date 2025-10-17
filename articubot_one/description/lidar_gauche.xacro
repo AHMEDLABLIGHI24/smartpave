@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+    <!-- Joint pour LiDAR gauche -->
+    <joint name="lidar_left_joint" type="fixed">
+        <parent link="chassis"/>
+        <child link="lidar_left_frame"/>
+        <!-- Position : x=0.226, y=+0.110, z=0.050 / Inclinaison pitch vers le bas (~-20°) -->
+        <origin xyz="0.226 0.110 0.050" rpy="0 -0.35 0"/>
+    </joint>
+
+    <!-- Lien du LiDAR gauche -->
+    <link name="lidar_left_frame">
+        <visual>
+            <geometry>
+                <!-- Corps principal du lidar -->
+                <cylinder radius="0.03" length="0.04"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <visual>
+            <origin xyz="0 0 -0.03"/>
+            <geometry>
+                <!-- Petit cylindre secondaire pour design -->
+                <cylinder radius="0.01" length="0.06"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.03" length="0.04"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="0.1" length="0.04" radius="0.03">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+    <!-- Gazebo plugin pour simulation du LiDAR gauche -->
+    <gazebo reference="lidar_left_frame">
+        <material>Gazebo/Blue</material>
+
+        <sensor name="lidar_left" type="ray">
+            <pose>0 0 0 0 0 0</pose>
+            <visualize>true</visualize>
+            <update_rate>15</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>360</samples>
+                        <min_angle>-3.14</min_angle>
+                        <max_angle>3.14</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.05</min>
+                    <max>10.0</max>
+                </range>
+            </ray>
+            <plugin name="lidar_left_controller" filename="libgazebo_ros_ray_sensor.so">
+                <ros>
+                    <argument>~/out:=scan_left</argument>
+                </ros>
+                <output_type>sensor_msgs/LaserScan</output_type>
+                <frame_name>lidar_left_frame</frame_name>
+            </plugin>
+        </sensor>
+    </gazebo>
+
+</robot>
+
